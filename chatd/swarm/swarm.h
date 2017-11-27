@@ -184,7 +184,7 @@ public:
     OID insert(std::shared_ptr<const object> object_ptr, std::function<void(OID oid)> fn = nullptr);
     bool update(OID index, std::shared_ptr<const object> object_ptr, std::function<void(bool flag)> fn = nullptr);
 
-    void begin_transaction(std::shared_ptr<transactin> transaction_ptr);
+    void begin_transaction(std::shared_ptr<transaction> transaction_ptr);
 
     template <typename T>
     bool remove(OID index)
@@ -263,7 +263,7 @@ private:
     void process(OID packet_id, std::shared_ptr<lock>& object_ptr);
     void process(std::shared_ptr<result>& object_ptr);
 
-    void begin_transaction(std::shared_ptr<transactin> transaction_ptr);
+    void begin_transaction(std::shared_ptr<transaction> transaction_ptr);
 };
 
 } // end of namespace

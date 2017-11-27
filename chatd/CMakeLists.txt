@@ -139,13 +139,13 @@ include_directories(${CMAKE_SOURCE_DIR}/libs/websocketpp)
 #=================================================
 
 # Crypto++ =======================================
-if (NOT EXISTS "${CMAKE_SOURCE_DIR}/cryptopp")
+if (NOT EXISTS "${CMAKE_SOURCE_DIR}/libs/cryptopp")
     execute_process(
         COMMAND "${GIT_EXECUTABLE}" clone https://github.com/weidai11/cryptopp.git
         WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/libs"
         )
 endif()
-add_subdirectory(libs/cryptopp)
+#add_subdirectory(libs/cryptopp)
 include_directories(${CMAKE_SOURCE_DIR}/libs/cryptopp)
 #=================================================
 

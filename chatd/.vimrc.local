@@ -1,0 +1,1 @@
+set path=$PWD,$PWD/../include,$PWD/swarm,$PWD/swarm/objects,$PWD/swarm/commands,$PWD/objects,$PWD/commands

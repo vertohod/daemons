@@ -184,8 +184,6 @@ public:
     OID insert(std::shared_ptr<const object> object_ptr, std::function<void(OID oid)> fn = nullptr);
     bool update(OID index, std::shared_ptr<const object> object_ptr, std::function<void(bool flag)> fn = nullptr);
 
-    void begin_transaction(std::shared_ptr<transaction> transaction_ptr);
-
     template <typename T>
     bool remove(OID index)
     {

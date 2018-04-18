@@ -189,11 +189,6 @@ void swarm::on_wait(int socket_id)
     lo::l(lo::DEBUG) << "swarm::on_wait, socket_id: " << socket_id;
 }
 
-table_interface* swarm::table(sptr_cstr table_name_ptr)
-{
-    return table(*table_name_ptr);
-}
-
 table_interface* swarm::table(const std::string& table_name)
 {
     auto it = m_table_map.find(table_name);
@@ -206,6 +201,24 @@ OID swarm::insert(std::shared_ptr<const object> object_ptr, std::function<void(O
     OID res = 0;
 
     auto table_ptr = table(object_ptr->tp());
+    // Если нет уникальных ключей, просто делаем вставку без каких-либо проверок
+    if (!table_ptr->get_unique_keys_flag()) {
+        res = table_ptr->insert(object_ptr);
+        if (fn != nullptr) fn(res);
+        shard(object_ptr);
+        return res;
+    }
+
+    // Если есть уникальные ключи, необходимо блокировать таблицу
+    // Не требуется синхронизация, делаем вставку только локально
+    if (object_ptr->settings() & BIT_SYNCHRONIZE == 0) {
+        table_ptr->lock(0);
+        res = table_ptr->insert(object_ptr);
+        table_ptr->unlock(0);
+        return res;
+    }
+
+
     if (table_ptr->get_unique_keys_flag()) {
         if (object_ptr->settings() & BIT_SYNCHRONIZE != 0) {
             // Блокируем всю таблицу (oid = 0)

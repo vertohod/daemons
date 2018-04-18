@@ -14,7 +14,7 @@ string(REGEX MATCH [0-9a-f]+ GIT_HASH "${GIT_HASH_TEMP}")
 
 add_definitions(-DDAEMON=\"chatd\" -DGIT_HASH=\"${GIT_HASH}\")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wexceptions")
 
 include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/../include)

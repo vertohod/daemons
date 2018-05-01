@@ -35,10 +35,10 @@ public:
     virtual size_t size() = 0;
     virtual bool get_unique_keys_flag() = 0;
 
-    virtual bool try_lock() = 0;
-    virtual bool lock_record(OID oid) = 0;
-    virtual void lock(OID oid) = 0;
-    virtual void unlock(OID oid) = 0;
+    virtual bool try_lock_record(OID oid) = 0;
+    virtual bool try_lock_table() = 0;
+    virtual bool unlock_record(OID oid) = 0;
+    virtual bool unlock_table() = 0;
 
     virtual ~table_interface();
 };
@@ -298,51 +298,32 @@ public:
         return it->second->find_range(lower_ptr, upper_ptr, start, limit, where);
     }
 
-    bool try_lock() override
+    bool try_lock_record() override
+    {
+        std::unique_lock<std::mutex> lock(m_mutex);
+        auto it = m_locked_records.find(oid);
+        if (it != m_locked_records.end()) return false;
+
+        m_locked_records.insert(oid);
+        return true;
+    }
+
+    bool try_lock_table() override
     {
         return m_mutex.try_lock();
     }
 
-    bool lock_record(OID oid) override
+    void unlock_record(OID oid) override
     {
         std::unique_lock<std::mutex> lock(m_mutex);
-        auto it = m_locked_records.find(oid);
-        if (it == m_locked_records.end()) { 
-            m_locked_records.insert(oid);
-            return true;
-        }
-        return false;
+        m_locked_records.erase(oid);
+        m_event_unlock = true;
+        m_cv.notify_all();
     }
 
-    void lock(OID oid) override
+    void unlock_table() override
     {
-        if (oid == 0) {
-            m_mutex.lock();
-        } else {
-            std::unique_lock<std::mutex> lock(m_mutex);
-            while (true) {
-                auto it = m_locked_records.find(oid);
-                if (it == m_locked_records.end()) { 
-                    m_locked_records.insert(oid);
-                    break;
-                } else {
-                    m_cv.wait(lock, [this]{ return m_event_unlock; });
-                    m_event_unlock = false;
-                }
-            }
-        }
-    }
-
-    void unlock(OID oid) override
-    {
-        if (oid == 0) {
-            m_mutex.unlock();
-        } else {
-            std::unique_lock<std::mutex> lock(m_mutex);
-            m_locked_records.erase(oid);
-            m_event_unlock = true;
-            m_cv.notify_all();
-        }
+        m_mutex.unlock();
     }
 
     bool get_unique_keys_flag() override

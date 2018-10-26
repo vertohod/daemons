@@ -1,0 +1,12 @@
+[submodule "libraries/cryptopp"]
+	path = libraries/cryptopp
+	url = https://github.com/weidai11/cryptopp.git
+[submodule "libraries/rapidjson"]
+	path = libraries/rapidjson
+	url = https://github.com/Tencent/rapidjson.git
+[submodule "libraries/websocketpp"]
+	path = libraries/websocketpp
+	url = https://github.com/zaphoyd/websocketpp.git
+[submodule "libraries/googletest"]
+	path = libraries/googletest
+	url = https://github.com/google/googletest.git
